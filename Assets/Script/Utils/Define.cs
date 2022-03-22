@@ -9,5 +9,20 @@ public static class Define
         Main,
         Game
     }
+    public enum TetrominoType
+    {
+        I,
+        O,
+        T,
+        J,
+        L,
+        S,
+        Z
+    }
+    public enum BlockColor
+    {
+        White,
+        Red,
+    }
 
 }

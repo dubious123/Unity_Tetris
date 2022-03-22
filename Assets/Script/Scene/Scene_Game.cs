@@ -6,6 +6,6 @@ public class Scene_Game : MonoBehaviour
 {
     void Start()
     {
-        
+        Mgr.GameEx.StartGame();
     }
 }

@@ -11,10 +11,11 @@ public class Mgr : MonoBehaviour
     Mgr_Scene _scene = new Mgr_Scene();
     Mgr_Resource _resource = new Mgr_Resource();
     Mgr_Pool _pool = new Mgr_Pool();
-
+    Mgr_Game _game = new Mgr_Game();
     public static Mgr_Scene SceneEx { get { return Instance._scene; } }
     public static Mgr_Resource ResourceEx { get { return Instance._resource; } }
     public static Mgr_Pool PoolEx { get { return Instance._pool; } }
+    public static Mgr_Game GameEx { get { return Instance._game; } }
 
     static public void Init()
     {
