@@ -42,25 +42,79 @@ public class Tetromino
         }
         return result;
     }
-    public bool CanFall(Tilemap tilemap)
+    public int CanFall(Tilemap tilemap)
     {
-        bool result = true;
-        return result;
+        Vector3Int[] currentPosArr = GetAllBlockPos();
+        List<Vector3Int> list = new List<Vector3Int>();
+        foreach (var pos in currentPosArr)
+        {
+            var temp = pos;
+            temp.y--;
+            if (temp.y <= 0)
+                return 0;
+            if (currentPosArr.Contains(temp))
+                continue;
+            list.Add(pos);
+        }
+        for (int i = 1; ;i++)
+        {
+            foreach (var pos in list)
+            {
+                var temp = pos;
+                temp.y -= i;
+                if (tilemap.HasTile(temp) || temp.y <0)
+                    return i - 1; 
+            }
+        }
     }
     public bool CanLeft(Tilemap tilemap)
     {
-        bool result = true;
-        return result;
+        Vector3Int[] currentPosArr = GetAllBlockPos();
+        foreach (var pos in currentPosArr)
+        {
+            var temp = pos;
+            temp.x--;
+            if (currentPosArr.Contains(temp))
+                continue;
+            if (temp.x < 0 || tilemap.HasTile(temp))
+                return false;
+        }
+        return true;
     }
     public bool CanRight(Tilemap tilemap)
     {
-        bool result = true;
-        return result;
+        Vector3Int[] currentPosArr = GetAllBlockPos();
+        foreach (var pos in currentPosArr)
+        {
+            var temp = pos;
+            temp.x++;
+            if (currentPosArr.Contains(temp))
+                continue;
+            if (temp.x > 11 || tilemap.HasTile(temp))
+                return false;
+        }
+        return true;
     }
     public bool CanRotateR(Tilemap tilemap)
     {
-        bool result = true;
-        return result;
+        //Vector3Int[] newPos = ((Vector3Int[])ChildVector.Clone()).ForEach(
+        //    (Vector3Int v) =>
+        //    {
+        //        int t = v.x;
+        //        v.x = v.y;
+        //        v.y = -v.x;
+        //        return v;
+        //    });
+        //foreach (var pos in currentPosArr)
+        //{
+        //    var temp = pos;
+        //    temp.x++;
+        //    if (currentPosArr.Contains(temp))
+        //        continue;
+        //    if (temp.x > 11 || tilemap.HasTile(temp))
+        //        return false;
+        //}
+        return true;
     }
     public bool CanRoateL(Tilemap tilemap)
     {

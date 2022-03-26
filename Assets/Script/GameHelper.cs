@@ -36,6 +36,11 @@ public class GameHelper : MonoBehaviour
             }
         }
     }
+    public void Set(TileBase tile, params Vector3Int[] arr)
+    {
+        foreach (var pos in arr)
+            _tilemap.SetTile(pos, tile);
+    }
     public Tetromino CreateTetro()
     {
         if (_currentTetro != null)
@@ -55,42 +60,43 @@ public class GameHelper : MonoBehaviour
     }
     public void Fall(CallbackContext c)
     {
-        Debug.Log("Fall");
+        Down(_currentTetro.CanFall(_tilemap));
     }
     public void Down(CallbackContext c)
     {
         if (_currentTetro.CanDown(_tilemap))
             Down();
-        Debug.Log("Down");
-
     }
-    public void Down()
+    public void Down(int i = 1)
     {
-        foreach (var pos in _currentTetro.GetAllBlockPos())
-            _tilemap.SetTile(pos, null);
-        _currentTetro.Pos.y--;
-        foreach (var pos in _currentTetro.GetAllBlockPos())
-            _tilemap.SetTile(pos, _baseBlock);
-
+        Set(null ,_currentTetro.GetAllBlockPos());
+        _currentTetro.Pos.y -= i;
+        Set(_baseBlock, _currentTetro.GetAllBlockPos());
     }
     public void MoveLeft(CallbackContext c)
     {
-        Debug.Log("MoveLeft");
-
+        if (_currentTetro.CanLeft(_tilemap))
+        {
+            Set(null, _currentTetro.GetAllBlockPos());
+            _currentTetro.Pos.x --;
+            Set(_baseBlock, _currentTetro.GetAllBlockPos());
+        }
     }
     public void MoveRight(CallbackContext c)
     {
-        Debug.Log("MoveRight");
-
+        if (_currentTetro.CanRight(_tilemap))
+        {
+            Set(null, _currentTetro.GetAllBlockPos());
+            _currentTetro.Pos.x++;
+            Set(_baseBlock, _currentTetro.GetAllBlockPos());
+        }
     }
     public void RotateRight(CallbackContext c)
     {
         Debug.Log("RotateRight");
-
     }
     public void RotateLeft(CallbackContext c)
     {
         Debug.Log("RotateLeft");
-
     }
 }
