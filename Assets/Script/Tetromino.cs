@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,20 +9,22 @@ using static UnityEngine.InputSystem.InputAction;
 public class Tetromino
 {
     Vector3Int[] _blockPosArr = new Vector3Int[4];
-    public Vector3Int Pos = new Vector3Int(0, 23, 0);
-    public Vector3Int[] ChildVector = new Vector3Int[3];
+    Vector3 _vectorOffset = new Vector3(-0.5f, -0.5f, 0);
+    public Vector3Int Pos = new Vector3Int(0, 24, 0);
+    public Vector3[] ChildVector = new Vector3[4];
     public bool IsFalling = false;
-    public Tetromino(Vector3Int[] childPos)
+    public TileBase MyTile;
+    public Tetromino(Vector3[] childPos)
     {
         childPos.CopyTo(ChildVector, 0);
     }
     public Vector3Int[] GetAllBlockPos()
     {
-        for(int i = 1; i < 4; i++)
+        for(int i = 0; i < 4; i++)
         {
-            _blockPosArr[i] = Pos + ChildVector[i-1];
+            Vector3Int v = Vector3Int.CeilToInt(ChildVector[i] + _vectorOffset);
+            _blockPosArr[i] = Pos + v;
         }
-        _blockPosArr[0] = Pos;
         return _blockPosArr;
     }
     public bool CanDown(Tilemap tilemap)
@@ -97,29 +100,47 @@ public class Tetromino
     }
     public bool CanRotateR(Tilemap tilemap)
     {
-        //Vector3Int[] newPos = ((Vector3Int[])ChildVector.Clone()).ForEach(
-        //    (Vector3Int v) =>
-        //    {
-        //        int t = v.x;
-        //        v.x = v.y;
-        //        v.y = -v.x;
-        //        return v;
-        //    });
-        //foreach (var pos in currentPosArr)
-        //{
-        //    var temp = pos;
-        //    temp.x++;
-        //    if (currentPosArr.Contains(temp))
-        //        continue;
-        //    if (temp.x > 11 || tilemap.HasTile(temp))
-        //        return false;
-        //}
+        Vector3Int[] currentPosArr = GetAllBlockPos();
+        for (int i = 0; i<4; i++)
+        {
+            Vector3 v = ChildVector[i];
+            float t = v.x;
+            v.x = v.y;
+            v.y = -t;
+            v += Pos;
+
+            var v2 = Vector3Int.CeilToInt(v + _vectorOffset);
+            if (currentPosArr.Contains(v2))
+                continue;
+            if (!IsInBound(v2) || tilemap.HasTile(v2))
+                return false;
+        }
         return true;
     }
-    public bool CanRoateL(Tilemap tilemap)
+    public bool CanRotateL(Tilemap tilemap)
     {
-        bool result = true;
-        return result;
-    }
+        Vector3Int[] currentPosArr = GetAllBlockPos();
+        for (int i = 0; i < 4; i++)
+        {
+            Vector3 v = ChildVector[i];
+            float t = v.x;
+            v.x = -v.y;
+            v.y = t;
+            v += Pos;
 
+            var v2 = Vector3Int.CeilToInt(v + _vectorOffset);
+            if (currentPosArr.Contains(v2))
+                continue;
+            if (!IsInBound(v2) || tilemap.HasTile(v2))
+                return false;
+        }
+        return true;
+    }
+    public bool IsInBound(Vector3Int pos)
+    {
+        return
+            pos.x >= 0 &&
+            pos.x <= 11 &&
+            pos.y >= 0 ;
+    }
 }

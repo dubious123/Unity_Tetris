@@ -8,6 +8,7 @@ using static UnityEngine.InputSystem.InputAction;
 public class Mgr_Input 
 {
     PlayerInput p;
+    Dictionary<string, Action<CallbackContext>> handlers;
     public PlayerInput _playerInput 
     {
         get
@@ -15,6 +16,17 @@ public class Mgr_Input
             return p != null ?
                 p : p = Mgr.ResourceEx.Instantiate("@PlayerInput").GetComponent<PlayerInput>();
         }
+    }
+    public void ClearAction()
+    {
+        if (handlers != null)
+        {
+            foreach (var a in _playerInput.actions.actionMaps[0])
+            {
+                a.performed -= handlers[a.name];
+            }
+        }
+        handlers = new Dictionary<string, Action<CallbackContext>>();
     }
     public void ConnectAction(string actionName, Action<CallbackContext> action)
     {
@@ -24,7 +36,9 @@ public class Mgr_Input
             Debug.LogError("Input Action not Found");
             return;
         }
-        inputA.performed += action;
+        handlers.Add(actionName, action);
+
+        inputA.performed += handlers[actionName];
     }
     public void ControlGameInput(bool control)
     {

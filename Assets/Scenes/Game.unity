@@ -123,6 +123,51 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &223890180
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 223890182}
+  - component: {fileID: 223890181}
+  m_Layer: 0
+  m_Name: UI_Helper
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &223890181
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 223890180}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 483273295b79b004981e9e03276814a0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Game_Parent: {fileID: 519006721}
+  PanelYouLose: {fileID: 825769253842665287, guid: a3878ae57064d4a4cb785be757b621f4, type: 3}
+--- !u!4 &223890182
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 223890180}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 6
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &395765839
 GameObject:
   m_ObjectHideFlags: 0
@@ -199,7 +244,7 @@ Canvas:
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
-  m_AdditionalShaderChannelsFlag: 0
+  m_AdditionalShaderChannelsFlag: 25
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
@@ -371,8 +416,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: abf8e2fdd76903f408e977eabeb10053, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _tilemap: {fileID: 1573262554}
-  _baseBlock: {fileID: 11400000, guid: 55ff3b5b68552c646a453b2a9135e5b4, type: 2}
+  Map: {fileID: 1573262554}
+  _baseBlocks:
+  - {fileID: 11400000, guid: 741e673de3d99f9498c7575e6c60fbc0, type: 2}
+  - {fileID: 11400000, guid: 61b2c1784fdcf7a429132b372962ac60, type: 2}
+  - {fileID: 11400000, guid: 0a850eeb9b7384b4fb205687c0cf7587, type: 2}
+  - {fileID: 11400000, guid: 79acee1132a9c2740bf1f7432fabcfab, type: 2}
+  - {fileID: 11400000, guid: d6a0200660d4b40478da2e2b36d46a8b, type: 2}
+  - {fileID: 11400000, guid: 377dd2896e6b8024ea7f4c6dc5a59cb0, type: 2}
+  - {fileID: 11400000, guid: 55ff3b5b68552c646a453b2a9135e5b4, type: 2}
+  - {fileID: 11400000, guid: f817c51cde28e9c4fa9bbab6bcecec4d, type: 2}
+  - {fileID: 11400000, guid: b93a9237ce09f0046b8828a97c4b1d04, type: 2}
   _currentSpeed: 0.5
 --- !u!4 &733906576
 Transform:
