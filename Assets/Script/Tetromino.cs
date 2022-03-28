@@ -4,29 +4,41 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using static Define;
 using static UnityEngine.InputSystem.InputAction;
 
 public class Tetromino
 {
     Vector3Int[] _blockPosArr = new Vector3Int[4];
     Vector3 _vectorOffset = new Vector3(-0.5f, -0.5f, 0);
-    public Vector3Int Pos = new Vector3Int(0, 24, 0);
+    public Vector3Int Pos = new Vector3Int(0, 24, 0); 
     public Vector3[] ChildVector = new Vector3[4];
     public bool IsFalling = false;
     public TileBase MyTile;
-    public Tetromino(Vector3[] childPos)
+    public TetrominoType TetroType;
+    public Tetromino(Vector3[] childPos, TetrominoType type)
     {
         childPos.CopyTo(ChildVector, 0);
+        TetroType = type;
     }
     public Vector3Int[] GetAllBlockPos()
     {
-        for(int i = 0; i < 4; i++)
+        for (int i = 0; i < 4; i++)
         {
             Vector3Int v = Vector3Int.CeilToInt(ChildVector[i] + _vectorOffset);
             _blockPosArr[i] = Pos + v;
         }
         return _blockPosArr;
     }
+    //public Vector3Int[] GetAllBlockPos()
+    //{
+    //    for (int i = 0; i < 4; i++)
+    //    {
+    //        Vector3Int v = Mgr.GameEx.GHelper.Map.WorldToCell(ChildVector[i]);
+    //        _blockPosArr[i] = Pos + v;
+    //    }
+    //    return _blockPosArr;
+    //}
     public bool CanDown(Tilemap tilemap)
     {
         bool result = true;

@@ -7,25 +7,31 @@ using static Define;
 
 public class Mgr_Game 
 {
-    GameHelper _game;
+    public GameHelper GHelper;
     UI_Helper _ui;
+    int _score = 0;
+    int _highScore = 100;
+    int _level = 1;
     public void ReadyNewGame()
     {
-        _game = GameObject.Find("GameHelper").GetComponent<GameHelper>();
+        GHelper = GameObject.Find("GameHelper").GetComponent<GameHelper>();
         _ui = GameObject.Find("UI_Helper").GetComponent<UI_Helper>();
         Mgr.InputEx.ClearAction();
-        Mgr.InputEx.ConnectAction("Down", _game.Down);
-        Mgr.InputEx.ConnectAction("Left", _game.MoveLeft);
-        Mgr.InputEx.ConnectAction("Right", _game.MoveRight);
-        Mgr.InputEx.ConnectAction("Fall", _game.Fall);
-        Mgr.InputEx.ConnectAction("RotateL", _game.RotateLeft);
-        Mgr.InputEx.ConnectAction("RotateR", _game.RotateRight);
+        Mgr.InputEx.ConnectAction("Down", GHelper.Down);
+        Mgr.InputEx.ConnectAction("Left", GHelper.MoveLeft);
+        Mgr.InputEx.ConnectAction("Right", GHelper.MoveRight);
+        Mgr.InputEx.ConnectAction("Fall", GHelper.Fall);
+        Mgr.InputEx.ConnectAction("RotateL", GHelper.RotateLeft);
+        Mgr.InputEx.ConnectAction("RotateR", GHelper.RotateRight);
+        Mgr.InputEx.ConnectAction("Keep", GHelper.Keep);
         Mgr.InputEx.ControlGameInput(false);
+
+        UpdateUI();
     }
     public void StartGame()
     {
         Mgr.InputEx.ControlGameInput(true);
-        _game.IsGameRunning = true;
+        GHelper.IsGameRunning = true;
     }
     public void ResumeGame()
     {
@@ -46,8 +52,8 @@ public class Mgr_Game
     public void CheckGameCondition()
     {
         bool gameCondition = true;
-        gameCondition &= _game.CurrentTetro.GetAllBlockPos().Max(v => v.y) <= 23;
-        _game.IsGameRunning = gameCondition;
+        gameCondition &= GHelper.CurrentTetro.GetAllBlockPos().Max(v => v.y) <= 23;
+        GHelper.IsGameRunning = gameCondition;
         if (gameCondition == false)
         {
             _ui.ToggleYouLose();         
@@ -56,12 +62,20 @@ public class Mgr_Game
         {
             bool isLined = true;
             for (int x = 0; x < 12; x++)
-                isLined &= _game.Map.HasTile(new Vector3Int(x, y, 0));
+                isLined &= GHelper.Map.HasTile(new Vector3Int(x, y, 0));
             if (isLined)
             {
-                _game.DeleteLine(y);
+                GHelper.DeleteLine(y);
                 y--;
+                _score+=1000;
+                UpdateUI();
             }
         }
+    }
+    public void UpdateUI(int level = -1, int score = -1, int highScore = -1)
+    {       
+        _ui.UpdateLevel(level == -1 ? _level : level);
+        _ui.UpdateScore(score == -1 ? _score : score);
+        _ui.UpdateHighScore(highScore == -1 ? (_highScore > _score ? _highScore : _highScore = _score)  : highScore);
     }
 }

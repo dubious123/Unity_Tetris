@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Tilemaps;
+using System.Linq;
 using static Define;
 using static UnityEngine.InputSystem.InputAction;
 using Random = UnityEngine.Random;
@@ -11,13 +12,16 @@ using Random = UnityEngine.Random;
 public class GameHelper : MonoBehaviour
 {
     [SerializeField] public Tilemap Map;
+    [SerializeField] public Tilemap Map_Keep;
     [SerializeField] public TileBase[] _baseBlocks;
     [SerializeField] public float _currentSpeed = 0.5f;
+    [SerializeField] public Transform Keep_Camera;
     float _deltaTime;
     Tetromino _currentTetro;
+    Tetromino _keep;
     public Tetromino CurrentTetro { get { return _currentTetro; } }
     TetrominoGenerator _generator = new TetrominoGenerator();
-
+    bool _keepNotUsed = true;
     public bool IsGameRunning { get; set; } = false;
     private void Update()
     {
@@ -38,24 +42,67 @@ public class GameHelper : MonoBehaviour
                 if (!IsGameRunning)
                     return;
                 _currentTetro = null;
-                CreateTetro();
             }
         }
     }
+
+
+
     public void Set(TileBase tile, params Vector3Int[] arr)
     {
         foreach (var pos in arr)
             Map.SetTile(pos, tile);
     }
-    public Tetromino CreateTetro()
+    public void Set_Keep(Tetromino keep)
     {
+        if (keep == null)
+            return;
+        Map_Keep.ClearAllTiles();
+        keep.Pos = Vector3Int.zero;
+        var posList = keep.GetAllBlockPos();
+        var xList = new List<int>();
+        var yList = new List<int>();
+
+        foreach (var pos in posList)
+        {
+            if (!xList.Contains(pos.x))
+                xList.Add(pos.x);
+            if (!yList.Contains(pos.y))
+                yList.Add(pos.y);
+            Map_Keep.SetTile(pos, keep.MyTile);
+        }
+        var xOffset = (int)xList.Average();
+        var yOffset = (int)yList.Average();
+        int yCount = yList.Count;
+        int xCount = xList.Count;
+        Keep_Camera.position = 
+            xCount % 2 == 0? 
+            yCount % 2 == 0?
+            new Vector3(0, 0, -10) :
+            new Vector3(0, 0.5f + yOffset, -10) :
+            yCount % 2 == 0 ?
+            new Vector3(0.5f + xOffset, 0, -10) :
+            new Vector3(0.5f + xOffset, 0.5f + yOffset, -10);
+    }
+    public Tetromino CreateTetro(Tetromino keep = null)
+    {
+        _keepNotUsed = true;
+        Tetromino tetro;
         if (_currentTetro != null)
         {
             Debug.LogError("Trying to create new Tetro but there is already active tetro");
             return null;
         }
-        Tetromino tetro = _generator.GetTetro((TetrominoType)Random.Range(0,6));
-        tetro.MyTile = _baseBlocks[Random.Range(0, 9)];
+        if(keep == null)
+        {
+            tetro = _generator.GetTetro((TetrominoType)Random.Range(0, 7));
+            tetro.MyTile = _baseBlocks[Random.Range(0, 9)];
+        }
+        else
+        {
+            tetro = _generator.GetTetro(keep.TetroType);
+            tetro.MyTile = keep.MyTile;
+        }
         tetro.Pos.x = 5;
         foreach (Vector3Int childPos in tetro.GetAllBlockPos())
         {
@@ -75,12 +122,16 @@ public class GameHelper : MonoBehaviour
     }
     public void Down(int i = 1)
     {
+        if (_currentTetro == null)
+            return;
         Set(null ,_currentTetro.GetAllBlockPos());
         _currentTetro.Pos.y -= i;
         Set(_currentTetro.MyTile, _currentTetro.GetAllBlockPos());
     }
     public void MoveLeft(CallbackContext c)
     {
+        if (_currentTetro == null)
+            return;
         if (_currentTetro.CanLeft(Map))
         {
             Set(null, _currentTetro.GetAllBlockPos());
@@ -90,6 +141,8 @@ public class GameHelper : MonoBehaviour
     }
     public void MoveRight(CallbackContext c)
     {
+        if (_currentTetro == null)
+            return;
         if (_currentTetro.CanRight(Map))
         {
             Set(null, _currentTetro.GetAllBlockPos());
@@ -99,6 +152,8 @@ public class GameHelper : MonoBehaviour
     }
     public void RotateRight(CallbackContext c)
     {
+        if (_currentTetro == null)
+            return;
         if (_currentTetro.CanRotateR(Map))
         {
             Set(null, _currentTetro.GetAllBlockPos());
@@ -113,6 +168,8 @@ public class GameHelper : MonoBehaviour
     }
     public void RotateLeft(CallbackContext c)
     {
+        if (_currentTetro == null)
+            return;
         if (_currentTetro.CanRotateL(Map))
         {
             Set(null, _currentTetro.GetAllBlockPos());
@@ -124,6 +181,22 @@ public class GameHelper : MonoBehaviour
             }
             Set(_currentTetro.MyTile, _currentTetro.GetAllBlockPos());
         }
+    }
+    public void Keep(CallbackContext c)
+    {
+        if (_currentTetro == null)
+            return;
+        if (_keepNotUsed)
+        {
+            var temp = _keep;
+            _keep = _currentTetro;
+            Set(null, _currentTetro.GetAllBlockPos());
+            Set_Keep(_keep);
+            _currentTetro = null;
+            _currentTetro = CreateTetro(temp);
+            _keepNotUsed = false;
+        }
+
     }
     public void DeleteLine(int y)
     {
