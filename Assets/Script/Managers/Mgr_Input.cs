@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using static UnityEngine.InputSystem.InputAction;
@@ -8,7 +9,17 @@ using static UnityEngine.InputSystem.InputAction;
 public class Mgr_Input 
 {
     PlayerInput p;
-    Dictionary<string, Action<CallbackContext>> handlers;
+    Dictionary<string, Stack<Action<CallbackContext>>> handlers = new Dictionary<string, Stack<Action<CallbackContext>>>
+    {
+        { "Down",new Stack<Action<CallbackContext>>()},
+        { "Left",new Stack<Action<CallbackContext>>()},
+        { "Right",new Stack<Action<CallbackContext>>()},
+        { "Fall",new Stack<Action<CallbackContext>>()},
+        { "RotateL",new Stack<Action<CallbackContext>>()},
+        { "RotateR",new Stack<Action<CallbackContext>>()},
+        { "Keep",new Stack<Action<CallbackContext>>()},
+        { "Esc",new Stack<Action<CallbackContext>>()}
+    };
     public PlayerInput _playerInput 
     {
         get
@@ -17,18 +28,23 @@ public class Mgr_Input
                 p : p = Mgr.ResourceEx.Instantiate("@PlayerInput").GetComponent<PlayerInput>();
         }
     }
-    public void ClearAction()
+    public void Init()
     {
-        if (handlers != null)
+        foreach (var t in handlers.Keys.ToArray())
         {
-            foreach (var a in _playerInput.actions.actionMaps[0])
-            {
-                a.performed -= handlers[a.name];
-            }
+            _playerInput.actions[t].performed += ctx => handlers[t].Peek().Invoke(ctx); 
         }
-        handlers = new Dictionary<string, Action<CallbackContext>>();
     }
-    public void ConnectAction(string actionName, Action<CallbackContext> action)
+    public void ClearAllActions()
+    {
+        foreach (var s in handlers.Keys.ToList())
+            handlers[s].Clear();
+    }
+    public void ClearAction(string name)
+    {
+        handlers[name].Clear();
+    }
+    public void PushAction(string actionName, Action<CallbackContext> action, bool excuteOnce = false)
     {
         InputAction inputA = _playerInput.actions.FindAction(actionName);
         if (inputA == null)
@@ -36,17 +52,44 @@ public class Mgr_Input
             Debug.LogError("Input Action not Found");
             return;
         }
-        handlers.Add(actionName, action);
-
-        inputA.performed += handlers[actionName];
+        if (excuteOnce)
+            action += ctx => handlers[actionName].Pop();
+        handlers[actionName].Push(action);
+    }
+    public Action<CallbackContext> PeekAction(string name)
+    {
+        return handlers[name].Peek();
+    }
+    public void PopAction(string name)
+    {
+        handlers[name].Pop();
+    }
+    public void InvokeAction(string name, CallbackContext ctx)
+    {
+        handlers[name].Peek().Invoke(ctx);
     }
     public void ControlGameInput(bool control)
     {
         if (control)
         {
-            _playerInput.ActivateInput();          
+            _playerInput.ActivateInput();    
             return;
         }
         _playerInput.DeactivateInput();
     }
+    public void EnableActions(params string[] names)
+    {
+        foreach (var n in names)
+        {
+            _playerInput.actions[n].Enable();
+        }
+    }
+    public void DisableActions(params string[] names)
+    {
+        foreach (var n in names)
+        {
+            _playerInput.actions[n].Disable();
+        }
+    }
+
 }

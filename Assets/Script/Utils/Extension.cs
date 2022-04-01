@@ -45,4 +45,14 @@ public static class Extension
         g.color = color;
         return g;
     }
+    public static int Factorial(this int x)
+    {
+        int result = 1;
+        if (x < 0) return 0;
+        for(int i = 1; i <= x; i++)
+        {
+            result *= i;
+        }
+        return result;
+    }
 }

@@ -13,8 +13,11 @@ public class GameHelper : MonoBehaviour
 {
     [SerializeField] public Tilemap Map;
     [SerializeField] public Tilemap Map_Keep;
+    [SerializeField] public Tilemap Map_Guide;
     [SerializeField] public TileBase[] _baseBlocks;
-    [SerializeField] public float _currentSpeed = 0.5f;
+    [SerializeField] public float speedOffset = 0.4f;
+    public float CurrentSpeed { get { return speedOffset - Mgr.GameEx.CurrentLevel * 0.01f; } }
+    
     [SerializeField] public Transform Keep_Camera;
     float _deltaTime;
     Tetromino _currentTetro;
@@ -28,7 +31,7 @@ public class GameHelper : MonoBehaviour
         if (!IsGameRunning)
             return;
         _deltaTime += Time.deltaTime;
-        if (_deltaTime > _currentSpeed)
+        if (_deltaTime > CurrentSpeed)
         {
             _deltaTime = 0f;
             if (_currentTetro == null)
@@ -52,6 +55,7 @@ public class GameHelper : MonoBehaviour
     {
         foreach (var pos in arr)
             Map.SetTile(pos, tile);
+        UpdateGuide();
     }
     public void Set_Keep(Tetromino keep)
     {
@@ -84,6 +88,11 @@ public class GameHelper : MonoBehaviour
             new Vector3(0.5f + xOffset, 0, -10) :
             new Vector3(0.5f + xOffset, 0.5f + yOffset, -10);
     }
+    public void Set_Guide(TileBase tile, params Vector3Int[] arr)
+    {
+        foreach (var pos in arr)
+            Map_Guide.SetTile(pos, tile);
+    }
     public Tetromino CreateTetro(Tetromino keep = null)
     {
         _keepNotUsed = true;
@@ -111,9 +120,28 @@ public class GameHelper : MonoBehaviour
         _currentTetro = tetro;
         return _currentTetro;
     }
+    void UpdateGuide()
+    {
+        if (_currentTetro == null)
+            return;
+        int yDown = _currentTetro.CanFall(Map);
+        Map_Guide.ClearAllTiles();
+        foreach (var pos in _currentTetro.GetAllBlockPos()) 
+        {
+            var t = pos;
+            t.y -= yDown;
+            Set_Guide(_currentTetro.MyTile, t);
+        }
+    }
     public void Fall(CallbackContext c)
     {
-        Down(_currentTetro.CanFall(Map));
+        if (_currentTetro == null)
+            return;
+        Mgr.InputEx.ControlGameInput(false);
+        int yDown = _currentTetro.CanFall(Map);
+        Down(yDown);
+        Mgr.GameEx.UpdateScore(yDown * Mgr.GameEx.CurrentLevel);
+        Mgr.InputEx.ControlGameInput(true);
     }
     public void Down(CallbackContext c)
     {
@@ -198,6 +226,10 @@ public class GameHelper : MonoBehaviour
         }
 
     }
+    public void Pause()
+    {
+
+    }
     public void DeleteLine(int y)
     {
         Vector3Int[] line = new Vector3Int[12];
@@ -228,4 +260,5 @@ public class GameHelper : MonoBehaviour
         Set(Map.GetTile(p2), p1);
         Set(temp, p2);
     }
+
 }
