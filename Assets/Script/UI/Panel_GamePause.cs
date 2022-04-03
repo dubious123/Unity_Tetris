@@ -9,7 +9,10 @@ public class Panel_GamePause : MonoBehaviour
     [SerializeField] public Sprite musicOff;
     [SerializeField] public Sprite musicOn;
     [SerializeField] public Image speaker;
-
+    public void Start()
+    {
+        slider.value = Mgr.GameEx.Setting.Sound;
+    }
     public void OnVolumeChange()
     {
         if(slider.value < 0.01f)
@@ -23,6 +26,7 @@ public class Panel_GamePause : MonoBehaviour
             speaker.sprite = musicOn;
             AudioListener.volume = slider.value;
         }
+        Mgr.GameEx.UpdateSetting(slider.value);
     }
     public void Restart()
     {

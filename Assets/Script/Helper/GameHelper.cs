@@ -145,6 +145,8 @@ public class GameHelper : MonoBehaviour
     }
     public void Down(CallbackContext c)
     {
+        if (_currentTetro == null)
+            return;
         if (_currentTetro.CanDown(Map))
             Down();
     }
@@ -224,10 +226,6 @@ public class GameHelper : MonoBehaviour
             _currentTetro = CreateTetro(temp);
             _keepNotUsed = false;
         }
-
-    }
-    public void Pause()
-    {
 
     }
     public void DeleteLine(int y)

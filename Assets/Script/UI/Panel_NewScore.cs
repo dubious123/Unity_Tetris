@@ -14,8 +14,7 @@ public class Panel_NewScore : MonoBehaviour
     }
     public void SaveNewScore()
     {
-        Debug.Log($"name : {_name.text}, score : {_score.text}");
-        Mgr.DataEx.Save(_name.text, int.Parse(_score.text));
+        Mgr.GameEx.SaveNewRecord(_name.text);
+        Mgr.UIEx.Close();
     }
-
 }

@@ -8,17 +8,19 @@ using static Define;
 public class Mgr_Game 
 {
     public GameHelper GHelper;
-    UI_Helper _ui;
+    public Save_Game SaveGame = new Save_Game();
+    Save_Setting _setting = new Save_Setting();
+    public Save_Setting Setting { get { return _setting; } }
+   
     int _score = 0;
     int _highScore = 100;
     int _level = 1;
     int _lineCleared = 0;
-    bool _newScore = false;
     public int CurrentLevel { get { return _level; } }
     public void ReadyNewGame()
     {
         GHelper = GameObject.Find("GameHelper").GetComponent<GameHelper>();
-        _ui = GameObject.Find("UI_Helper").GetComponent<UI_Helper>();
+        
         Mgr.InputEx.ClearAllActions();
         Mgr.InputEx.PushAction("Down", GHelper.Down);
         Mgr.InputEx.PushAction("Left", GHelper.MoveLeft);
@@ -30,7 +32,15 @@ public class Mgr_Game
         Mgr.InputEx.PushAction("Esc", ctx => PauseGame());
         Mgr.InputEx.ControlGameInput(false);
 
-        Mgr.DataEx.ReadSave(ref _highScore);
+        Mgr.DataEx.ReadSave(SaveGame);
+        Mgr.DataEx.ReadSetting(ref _setting);
+        AudioListener.volume = _setting.Sound;
+
+        _highScore = SaveGame.GetHighScore();
+        _score = 0;
+        _level = 1;
+        _lineCleared = 0;
+
         UpdateSideUI();
     }
     public void StartGame()
@@ -40,7 +50,7 @@ public class Mgr_Game
     }
     public void ResumeGame()
     {
-        _ui.Close();
+        Mgr.UIEx.Close();
         GHelper.IsGameRunning = true;
         Mgr.InputEx.ControlGameInput(true);
     }
@@ -54,7 +64,7 @@ public class Mgr_Game
         Mgr.InputEx.ControlGameInput(false);
         Mgr.InputEx.EnableActions("Esc");
 
-        _ui.Pause();
+        Mgr.UIEx.Pause();
     }
     public void RestartGame()
     {
@@ -98,12 +108,7 @@ public class Mgr_Game
             return;
         _score += deltaScore;
         if (_score > _highScore)
-            UpdateHighScore();
-    }
-    void UpdateHighScore()
-    {
-        _highScore = _score;
-        _newScore = true;
+            _highScore = _score;
     }
     void UpdateLevel()
     {
@@ -111,16 +116,27 @@ public class Mgr_Game
         _level = t > 29 ? 30: t;
     }
     public void UpdateSideUI()
-    {       
-        _ui.UpdateLevel(_level);
-        _ui.UpdateScore(_score);
-        _ui.UpdateHighScore(_highScore);
+    {
+        Mgr.UIEx.UpdateLevel(_level);
+        Mgr.UIEx.UpdateScore(_score);
+        Mgr.UIEx.UpdateHighScore(_highScore);
+    }
+    public void UpdateSetting(float volume)
+    {
+        _setting.Sound = volume;
+
+        Mgr.DataEx.SaveSetting(_setting);
     }
     void GameEnd()
     {
-        if(_newScore)
-            _ui.NewScore(_highScore);
+        if (SaveGame.IsNewRecord(_score))       
+            Mgr.UIEx.NewScore(_score);      
         else
-            _ui.YouLose();
+            Mgr.UIEx.YouLose();
+    }
+    public void SaveNewRecord(string name)
+    {
+        SaveGame.AddNewRecord(new Save_Game.RecordFormat(_score,name));
+        Mgr.DataEx.Save(SaveGame);
     }
 }
