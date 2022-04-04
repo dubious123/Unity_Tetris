@@ -5,42 +5,42 @@ using UnityEngine;
 
 public class Mgr_UI 
 {
+    UI_Helper UI { get { if (_ui == null) _ui = GameObject.Find("UI_Helper").GetComponent<UI_Helper>(); return _ui; } }
     UI_Helper _ui;
     public void Init()
     {
-        _ui = GameObject.Find("UI_Helper").GetComponent<UI_Helper>();
     }
     public void Close()
     {
-        _ui.Close();
+        UI.Close();
     }
     public void Pause()
     {
-        _ui.Pause();
+        UI.Pause();
     }
 
     internal void UpdateLevel(int level)
     {
-        _ui.UpdateLevel(level);
+        UI.UpdateLevel(level);
     }
 
     internal void UpdateScore(int score)
     {
-        _ui.UpdateScore(score);
+        UI.UpdateScore(score);
     }
 
     internal void UpdateHighScore(int highScore)
     {
-        _ui.UpdateHighScore(highScore);
+        UI.UpdateHighScore(highScore);
     }
 
     internal void NewScore(int score)
     {
-        _ui.NewScore(score);
+        UI.NewScore(score);
     }
 
     internal void YouLose()
     {
-        _ui.YouLose();
+        UI.YouLose();
     }
 }

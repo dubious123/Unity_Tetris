@@ -1,6 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using UnityEngine;
 
 public class Save_Game 
@@ -16,14 +18,16 @@ public class Save_Game
         {
             Score = score;
             Name = name;
-            Header = (ushort)(sizeof(int) + sizeof(char) * name.Length + sizeof(ushort));
+           
+            Header = (ushort)(sizeof(int) + Encoding.Unicode.GetBytes(name).Length + sizeof(ushort));
         }
     }
     public int GetHighScore()
     {
         if (Record.Count <= 0)
             return 0;
-        return Record[0].Score;
+        
+        return Record.Max(element => element.Score);
     }
     public bool IsNewRecord(int score)
     {

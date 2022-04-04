@@ -16,16 +16,28 @@ public class Mgr_Data
         if (!File.Exists(_savePath))
             CreateNewSaveFile();   
         byte[] buffer = File.ReadAllBytes(_savePath);
-        int count = 0;
-        while (count < buffer.Length)
+        //int count = 0;
+        //while (count < buffer.Length)
+        //{
+        //    ushort header = BitConverter.ToUInt16(buffer, count);
+        //    if (header <= 2) return;
+        //    count += sizeof(ushort);
+        //    int score = BitConverter.ToInt32(buffer, count);
+        //    count += sizeof(int);
+        //    string name = Encoding.Unicode.GetString(buffer, count,header - count);
+        //    count = header;
+        //    save.Record.Add(new Save_Game.RecordFormat(score, name));
+        //}
+        for(int i = 0; i < 10; i++)
         {
-            ushort header = BitConverter.ToUInt16(buffer, count);
+            int offset = i * 36;
+            int count = 0;
+            ushort header = BitConverter.ToUInt16(buffer, offset + count);
             if (header <= 2) return;
             count += sizeof(ushort);
-            int score = BitConverter.ToInt32(buffer, count);
+            int score = BitConverter.ToInt32(buffer, offset + count);
             count += sizeof(int);
-            string name = Encoding.Unicode.GetString(buffer, count,header - count);
-            count += header - 4;
+            string name = Encoding.Unicode.GetString(buffer, count, offset + header - count);
             save.Record.Add(new Save_Game.RecordFormat(score, name));
         }
     }
@@ -63,28 +75,45 @@ public class Mgr_Data
     public void Save(Save_Game save)
     {
         byte[] newSave = new byte[360];
-        int count = 0;
         int i;
-        foreach (var s in save.Record)
+        //foreach (var s in save.Record)
+        //{
+        //    byte[] byte_name = Encoding.Unicode.GetBytes(s.Name);
+        //    byte[] byte_score = BitConverter.GetBytes(s.Score);
+        //    byte[] header = BitConverter.GetBytes((ushort)(byte_name.Length + byte_score.Length));
+        //    int nameL = byte_name.Length;
+        //    int scoreL = byte_score.Length;
+        //    int headerL = header.Length;
+        //    for (i = 0; i < headerL; i++)
+        //        newSave[count + i] = header[i];
+        //    count += i;
+        //    for (i = 0; i < scoreL; i++)
+        //        newSave[count + i] = byte_score[i];
+        //    count += i;
+        //    for (i = 0; count < nameL; count++)
+        //        newSave[count + i] = byte_name[i];
+        //    count += i;
+        //}
+        for(int j = 0; j < save.Record.Count; j++)
         {
-            byte[] byte_name = Encoding.Unicode.GetBytes(s.Name);
-            byte[] byte_score = BitConverter.GetBytes(s.Score);
+            int offset = j * 36;
+            int count = 0;
+            byte[] byte_name = Encoding.Unicode.GetBytes(save.Record[j].Name);
+            byte[] byte_score = BitConverter.GetBytes(save.Record[j].Score);
             byte[] header = BitConverter.GetBytes((ushort)(byte_name.Length + byte_score.Length));
             int nameL = byte_name.Length;
             int scoreL = byte_score.Length;
             int headerL = header.Length;
             for (i = 0; i < headerL; i++)
-                newSave[count + i] = header[i];
+                newSave[count + offset + i] = header[i];
             count += i;
             for (i = 0; i < scoreL; i++)
-                newSave[count + i] = byte_score[i];
+                newSave[count + offset + i] = byte_score[i];
             count += i;
             for (i = 0; count < nameL; count++)
-                newSave[count + i] = byte_name[i];
+                newSave[count + offset + i] = byte_name[i];
             count += i;
         }
-
-
 
         File.WriteAllBytes(_savePath, newSave);
     }

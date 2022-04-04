@@ -47,7 +47,7 @@ public class UI_Helper : MonoBehaviour
     }
     public void UpdateHighScore(int score)
     {
-        HighScore.text = $"HighScore:  {score}";
+        HighScore.text = $"HighScore:  {score}  {Mgr.GameEx.SaveGame.Record[0].Name}";
 
     }
     public void UpdateScore(int score)
